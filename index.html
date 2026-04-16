@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=0">
+    <title>Unit 13: Vocabulary Adventure 🐾</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #f59e0b; 
+            --secondary: #818cf8;
+            --accent: #fbbf24;
+        }
+        body {
+            font-family: 'Quicksand', 'Noto Sans TC', sans-serif;
+            -webkit-text-size-adjust: 100%;
+            touch-action: manipulation;
+            background-color: #fffaf0;
+        }
+        .font-cartoon { font-family: 'Fredoka One', cursive; }
+        .safe-pb { padding-bottom: env(safe-area-inset-bottom); }
+        .perspective { perspective: 1000px; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .backface-hidden { backface-visibility: hidden; }
+        .preserve-3d { transform-style: preserve-3d; }
+        .card-flip { transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        
+        .bubble-shadow {
+            box-shadow: 0 8px 0px rgba(0,0,0,0.1);
+        }
+        .bubble-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0px rgba(0,0,0,0.1);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        .animate-shake { animation: shake 0.2s cubic-bezier(.36,.07,.19,.97) both; }
+
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(245, 158, 11, 0.3); border-radius: 10px; }
+    </style>
+</head>
+<body class="text-slate-800 overflow-x-hidden min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white border-b-4 border-orange-100 px-4 h-20 flex items-center justify-between shadow-sm">
+        <div class="flex items-center gap-2">
+            <div class="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white text-2xl animate-bounce">🐾</div>
+            <h1 class="font-cartoon text-2xl text-orange-500 tracking-wider">Unit 13 <span class="text-indigo-400">Lab</span></h1>
+        </div>
+        <div class="flex flex-col items-end">
+            <div id="overall-count" class="text-[10px] font-black uppercase text-orange-400 mb-1">Total Progress</div>
+            <div class="w-32 h-3 bg-slate-100 rounded-full overflow-hidden border-2 border-slate-100">
+                <div id="global-progress" class="h-full bg-orange-400 transition-all duration-700" style="width: 0%"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="app-content" class="max-w-4xl mx-auto px-4 py-8 mb-24">
+        
+        <!-- Flashcards View -->
+        <section id="view-flashcards" class="view">
+            <div class="flex flex-col items-center gap-10">
+                <div id="flashcard-container" class="w-full max-w-sm aspect-[3/4.8] perspective">
+                    <!-- Dynamic Card -->
+                </div>
+                
+                <div class="flex items-center gap-8">
+                    <button onclick="app.prevCard()" class="bubble-btn p-5 bg-white border-4 border-orange-100 rounded-3xl text-orange-400 hover:bg-orange-50 transition-all bubble-shadow">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+                    <div id="card-index" class="font-cartoon text-xl text-slate-300">01 / 18</div>
+                    <button onclick="app.nextCard()" class="bubble-btn p-5 bg-white border-4 border-orange-100 rounded-3xl text-orange-400 hover:bg-orange-50 transition-all bubble-shadow">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M9 5l7 7-7 7" /></svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Games View -->
+        <section id="view-games" class="view hidden">
+            <div id="game-selection" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div onclick="game.start(1)" class="bubble-btn bg-white p-8 rounded-[3rem] border-4 border-amber-100 bubble-shadow cursor-pointer hover:scale-105 transition-all text-center">
+                    <div class="text-5xl mb-4 text-amber-500">⚡</div>
+                    <h3 class="font-cartoon text-xl text-amber-600 mb-2">眼明手快</h3>
+                    <p class="text-slate-400 text-sm font-bold">SPEED TAP</p>
+                </div>
+                <div onclick="game.start(2)" class="bubble-btn bg-white p-8 rounded-[3rem] border-4 border-rose-100 bubble-shadow cursor-pointer hover:scale-105 transition-all text-center">
+                    <div class="text-5xl mb-4 text-rose-500">🧩</div>
+                    <h3 class="font-cartoon text-xl text-rose-500 mb-2">直觀配對</h3>
+                    <p class="text-slate-400 text-sm font-bold">MATCHING</p>
+                </div>
+                <div onclick="game.start(3)" class="bubble-btn bg-white p-8 rounded-[3rem] border-4 border-indigo-100 bubble-shadow cursor-pointer hover:scale-105 transition-all text-center">
+                    <div class="text-5xl mb-4 text-indigo-500">✍️</div>
+                    <h3 class="font-cartoon text-xl text-indigo-500 mb-2">拼字大師</h3>
+                    <p class="text-slate-400 text-sm font-bold">SPELLING</p>
+                </div>
+            </div>
+
+            <div id="game-playground" class="hidden min-h-[500px] flex flex-col bg-white rounded-[3rem] p-8 border-4 border-slate-100">
+                <div class="flex justify-between items-center mb-10">
+                    <button onclick="game.quit()" class="font-bold text-slate-400 hover:text-rose-500 flex items-center gap-2">
+                        <span class="text-2xl">✖</span> 退出
+                    </button>
+                    <div id="game-stats" class="font-cartoon text-2xl text-orange-500">Score: 0</div>
+                </div>
+                <div id="game-screen" class="flex-grow flex flex-col items-center justify-center w-full"></div>
+            </div>
+        </section>
+
+        <!-- Logs View -->
+        <section id="view-logs" class="view hidden">
+            <div class="bg-white rounded-[3rem] border-4 border-orange-50 p-8 bubble-shadow">
+                <div class="flex justify-between items-end mb-10">
+                    <h3 class="font-cartoon text-3xl text-slate-800">學習日誌 <span class="text-orange-400">LOGS</span></h3>
+                    <button onclick="app.resetData()" class="text-rose-400 text-xs font-bold hover:underline">RESET DATA</button>
+                </div>
+                <div id="stats-overview" class="grid grid-cols-2 gap-6 mb-10"></div>
+                <div class="space-y-4" id="learned-list"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Nav -->
+    <footer class="fixed bottom-0 left-0 w-full bg-white border-t-4 border-orange-50 safe-pb z-40">
+        <div class="max-w-4xl mx-auto grid grid-cols-3 h-20">
+            <button onclick="app.switchView('flashcards')" class="nav-btn flex flex-col items-center justify-center transition-colors">
+                <div class="text-2xl mb-1 text-slate-300 ico">📖</div>
+                <span class="font-cartoon text-[10px] tracking-widest uppercase label">Cards</span>
+            </button>
+            <button onclick="app.switchView('games')" class="nav-btn flex flex-col items-center justify-center transition-colors">
+                <div class="text-2xl mb-1 text-slate-300 ico">🎮</div>
+                <span class="font-cartoon text-[10px] tracking-widest uppercase label">Play</span>
+            </button>
+            <button onclick="app.switchView('logs')" class="nav-btn flex flex-col items-center justify-center transition-colors">
+                <div class="text-2xl mb-1 text-slate-300 ico">⭐</div>
+                <span class="font-cartoon text-[10px] tracking-widest uppercase label">Stats</span>
+            </button>
+        </div>
+    </footer>
+
+    <!-- Modal Result -->
+    <div id="modal-result" class="hidden fixed inset-0 bg-orange-500/90 backdrop-blur-sm flex items-center justify-center z-[200] p-6">
+        <div class="bg-white rounded-[3rem] w-full max-w-sm p-10 text-center shadow-2xl">
+            <div class="text-8xl mb-6 animate-bounce">🏆</div>
+            <h2 id="modal-title" class="font-cartoon text-3xl text-slate-800 mb-4">做得好！</h2>
+            <p id="modal-msg" class="text-slate-500 font-bold mb-10"></p>
+            <button onclick="game.quit()" class="bubble-btn w-full py-5 bg-orange-500 text-white rounded-3xl font-cartoon text-xl bubble-shadow">繼續努力!</button>
+        </div>
+    </div>
+
+    <script>
+        // 按照指定順序排列的 18 個單字
+        const VOCAB_DATA = [
+            { id: 1, word: "cartoon", phonetic: "[kɑrˈtun]", definitions: [{ pos: "n", zh: "漫畫；卡通" }], example: "Derek drew a cartoon about his cat, Fluffy.", ex_zh: "德瑞克為他的貓飛飛畫了一幅卡通像。", supplement: ["cartoon strip 連載漫畫 (comic strip)"] },
+            { id: 2, word: "character", phonetic: "[ˈkærəktɚ]", definitions: [{ pos: "n", zh: "角色；特性；字母" }], example: "Puss is my favorite character in the Shrek movies.", ex_zh: "《史瑞克》系列電影中我最喜歡的角色是靴貓。", supplement: ["characteristic (n.) 特色", "add character to a face (增添臉孔特性)"] },
+            { id: 3, word: "comic", phonetic: "[ˈkɑmɪk]", definitions: [{ pos: "n", zh: "漫畫" }, { pos: "adj", zh: "喜劇的" }], example: "Jack Black is a comic actor.", ex_zh: "傑克·布萊克是個喜劇演員。", supplement: ["comical (adj.) 滑稽的", "comic strip 連載漫畫"] },
+            { id: 4, word: "strip", phonetic: "[strɪp]", definitions: [{ pos: "n", zh: "條；帶狀物" }, { pos: "v", zh: "脫掉；剝去" }], example: "The designer sewed together long strips of fabric.", ex_zh: "設計師把長布條縫在一起，做成一件有趣的洋裝。", supplement: ["be stripped of + N. 被剝奪某物", "strip the husks from (剝掉外皮)"] },
+            { id: 5, word: "spark", phonetic: "[spɑrk]", definitions: [{ pos: "v", zh: "引發；激起" }, { pos: "n", zh: "火花" }], example: "The actress sparked a new trend when she dyed her hair blue.", ex_zh: "那位女演員將頭髮染成藍色，引起了一股新潮流。", supplement: ["spark a debate 引發爭議", "sparkle (v.) 閃爍"] },
+            { id: 6, word: "intense", phonetic: "[ɪnˈtɛns]", definitions: [{ pos: "adj", zh: "強烈的；極度的" }], example: "Intense fighting broke out between the two sides.", ex_zh: "雙方爆發了激烈的打鬥。", supplement: ["intensify (v.) 強化", "intensity (n.) 強度；濃烈度"] },
+            { id: 7, word: "argument", phonetic: "[ˈɑrɡjəmənt]", definitions: [{ pos: "n", zh: "爭論；論點" }], example: "Julie and her boyfriend had an argument on the phone.", ex_zh: "茱莉和男朋友在電話裡吵了一架。", supplement: ["get into an argument with sb. 與某人爭吵", "argue with sb. about sth. 爭論..."] },
+            { id: 8, word: "illustration", phonetic: "[ˌɪləˈstreʃən]", definitions: [{ pos: "n", zh: "插畫；圖解" }], example: "The child enjoyed looking at the illustrations in the book.", ex_zh: "這個孩子喜歡看這本書裡面的插畫。", supplement: ["illustrate (v.) 加插圖；說明", "illustrator (n.) 插畫家"] },
+            { id: 9, word: "before long", phonetic: "[bɪˈfɔr lɔŋ]", definitions: [{ pos: "phr", zh: "不久；馬上" }], example: "Before long, the square was filled with people.", ex_zh: "很快地，廣場上就擠滿了人。", supplement: ["soon / in no time (馬上)", "long before (早在...之前)"] },
+            { id: 10, word: "revise", phonetic: "[rɪˈvaɪz]", definitions: [{ pos: "v", zh: "修改；修訂" }], example: "You do not need to write a new essay; just revise the old one.", ex_zh: "你不必重寫一篇新文章；只要修改舊的那篇就好了。", supplement: ["modify (v.) 修改", "revision (n.) 修訂版"] },
+            { id: 11, word: "lock", phonetic: "[lɑk]", definitions: [{ pos: "v", zh: "鎖上" }, { pos: "n", zh: "鎖" }], example: "Sarah locked her notebook in a box so her brother wouldn't read it.", ex_zh: "莎拉把她的筆記本鎖在箱子裡，這樣她的弟弟就不會看到。", supplement: ["unlock (v.) 解開", "locker (n.) 置物櫃"] },
+            { id: 12, word: "voice", phonetic: "[vɔɪs]", definitions: [{ pos: "v", zh: "表達；配音" }, { pos: "n", zh: "聲音" }], example: "Most characters in the movie were voiced by famous actors.", ex_zh: "這部電影中大部分的角色都是由知名演員配音的。", supplement: ["voice-over (n.) 旁白", "give voice to (表達想法)"] },
+            { id: 13, word: "opinion", phonetic: "[əˈpɪnjən]", definitions: [{ pos: "n", zh: "意見；看法" }], example: "Mark and Erin have different opinions about how to raise their children.", ex_zh: "馬克和愛琳對如何扶養小孩有不同的看法。", supplement: ["in one's opinion 依某人之見", "voice one's opinions 發表意見"] },
+            { id: 14, word: "proof", phonetic: "[pruf]", definitions: [{ pos: "n", zh: "證據；證言" }], example: "Do you have proof that he took your bike?", ex_zh: "你有證據他牽走了你的腳踏車嗎？", supplement: ["prove (v.) 證明", "waterproof (adj.) 防水的"] },
+            { id: 15, word: "comment", phonetic: "[ˈkɑmɛnt]", definitions: [{ pos: "n", zh: "評論；意見" }, { pos: "v", zh: "做出評論" }], example: "The president made some funny comments in his speech.", ex_zh: "總統在他的演說中發表了一些風趣的評論。", supplement: ["comment on sth. 對某事評論", "have no comment 不予置評"] },
+            { id: 16, word: "imply", phonetic: "[ɪmˈplaɪ]", definitions: [{ pos: "v", zh: "暗示；意味著" }], example: "Brett did not mean to imply that you were to blame.", ex_zh: "布雷特無意暗指你該負起責任。", supplement: ["implication (n.) 暗示；含意"] },
+            { id: 17, word: "interpret", phonetic: "[ɪnˈtɜrprɪt]", definitions: [{ pos: "v", zh: "解釋；詮釋" }], example: "The leader interprets the rise in employment as a sign that the economy is getting stronger.", ex_zh: "領導人將就業率上升視為經濟好轉的徵兆。", supplement: ["interpreter (n.) 口譯員", "interpretation (n.) 詮釋"] },
+            { id: 18, word: "secondary", phonetic: "[ˈsɛkənˌdɛri]", definitions: [{ pos: "adj", zh: "次要的；中等的" }], example: "For Kim, making money is secondary to learning.", ex_zh: "對金而言，學習比賺錢來得重要。", supplement: ["primary (adj.) 主要的", "secondary smoke 二手菸"] }
+        ];
+
+        const app = {
+            currentIndex: 0,
+            learnedData: JSON.parse(localStorage.getItem('unit13_vfinal_progress')) || {},
+            
+            init() {
+                this.switchView('flashcards');
+                this.updateProgress();
+                this.renderFlashcard();
+            },
+
+            switchView(v) {
+                document.querySelectorAll('.view').forEach(el => el.classList.add('hidden'));
+                document.getElementById(`view-${v}`).classList.remove('hidden');
+                
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.querySelector('.ico').classList.replace('text-orange-500', 'text-slate-300');
+                    btn.querySelector('.label').classList.replace('text-orange-500', 'text-slate-300');
+                });
+                
+                const btnIdx = v === 'flashcards' ? 0 : v === 'games' ? 1 : 2;
+                const activeBtn = document.querySelectorAll('.nav-btn')[btnIdx];
+                activeBtn.querySelector('.ico').classList.replace('text-slate-300', 'text-orange-500');
+                activeBtn.querySelector('.label').classList.replace('text-slate-300', 'text-orange-500');
+                
+                if (v === 'logs') this.renderLogs();
+            },
+
+            renderFlashcard() {
+                const word = VOCAB_DATA[this.currentIndex];
+                const container = document.getElementById('flashcard-container');
+                if (!this.learnedData[word.id]) this.learnedData[word.id] = { flips: 0, audio: 0, learned: false };
+
+                document.getElementById('card-index').innerText = `${String(this.currentIndex + 1).padStart(2, '0')} / ${VOCAB_DATA.length}`;
+
+                container.innerHTML = `
+                    <div id="main-card" class="relative w-full h-full card-flip preserve-3d cursor-pointer" onclick="app.flipCard(${word.id})">
+                        <!-- Front -->
+                        <div class="absolute inset-0 bg-white rounded-[3.5rem] shadow-xl border-4 border-orange-100 backface-hidden flex flex-col items-center justify-center p-10">
+                            <div class="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center text-3xl mb-8 animate-float">🍊</div>
+                            <h2 class="font-cartoon text-5xl text-slate-800 mb-4 tracking-tight">${word.word}</h2>
+                            <p class="text-orange-300 font-bold tracking-widest uppercase text-xs mb-10">${word.phonetic}</p>
+                            <button onclick="event.stopPropagation(); app.speak('${word.word}', ${word.id})" class="bubble-btn w-20 h-20 bg-orange-500 text-white rounded-full flex items-center justify-center hover:bg-orange-600 active:scale-90 transition-all bubble-shadow">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+                            </button>
+                            <p class="mt-10 text-slate-300 text-xs font-bold uppercase tracking-widest">Tap to reveal</p>
+                        </div>
+                        <!-- Back -->
+                        <div class="absolute inset-0 bg-orange-500 rounded-[3.5rem] shadow-xl backface-hidden rotate-y-180 flex flex-col p-10 text-white text-center">
+                            <div class="flex-grow overflow-y-auto custom-scroll pr-2 flex flex-col items-center">
+                                <div class="mb-8">
+                                    ${word.definitions.map(d => `
+                                        <div class="mb-4">
+                                            <span class="bg-white/20 px-3 py-1 rounded-lg text-xs font-black uppercase tracking-tighter">${d.pos}</span>
+                                            <h3 class="text-5xl font-black mt-4 leading-tight">${d.zh}</h3>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                <div class="bg-black/10 p-6 rounded-[2rem] mb-6 border border-white/10 w-full text-left">
+                                    <p class="text-2xl font-bold leading-relaxed mb-4">"${word.example}"</p>
+                                    <p class="text-lg text-orange-100 font-medium">翻譯：${word.ex_zh}</p>
+                                </div>
+                                <div class="w-full text-left">
+                                    <h4 class="text-[10px] uppercase font-black tracking-widest text-orange-200 mb-3 ml-2">Extra Usage & Notes</h4>
+                                    <div class="space-y-3">
+                                        ${word.supplement.map(s => `<div class="flex items-start gap-3 bg-white/10 p-4 rounded-2xl text-base font-bold"><span class="mt-1">✨</span>${s}</div>`).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            flipCard(id) {
+                document.getElementById('main-card').classList.toggle('rotate-y-180');
+                if (this.learnedData[id]) {
+                    this.learnedData[id].flips++;
+                    this.checkLearned(id);
+                }
+            },
+
+            speak(text, id) {
+                const utter = new SpeechSynthesisUtterance(text);
+                utter.lang = 'en-US'; utter.rate = 0.85;
+                window.speechSynthesis.speak(utter);
+                if (this.learnedData[id]) {
+                    this.learnedData[id].audio++;
+                    this.checkLearned(id);
+                }
+            },
+
+            checkLearned(id) {
+                const d = this.learnedData[id];
+                if (!d.learned && d.flips >= 2 && d.audio >= 1) {
+                    d.learned = true; this.save(); this.updateProgress();
+                }
+            },
+
+            nextCard() { if (this.currentIndex < VOCAB_DATA.length - 1) { this.currentIndex++; this.renderFlashcard(); } },
+            prevCard() { if (this.currentIndex > 0) { this.currentIndex--; this.renderFlashcard(); } },
+
+            updateProgress() {
+                const learnedCount = VOCAB_DATA.filter(w => this.learnedData[w.id]?.learned).length;
+                const p = (learnedCount / VOCAB_DATA.length) * 100;
+                document.getElementById('global-progress').style.width = `${p}%`;
+            },
+
+            save() { localStorage.setItem('unit13_vfinal_progress', JSON.stringify(this.learnedData)); },
+
+            renderLogs() {
+                const learnedCount = VOCAB_DATA.filter(w => this.learnedData[w.id]?.learned).length;
+                document.getElementById('stats-overview').innerHTML = `
+                    <div class="bg-orange-50 p-6 rounded-[2rem] border-2 border-orange-100">
+                        <div class="text-4xl font-black text-orange-500">${learnedCount}</div>
+                        <div class="text-[10px] text-slate-400 font-black uppercase tracking-widest">Mastered</div>
+                    </div>
+                    <div class="bg-slate-50 p-6 rounded-[2rem] border-2 border-slate-100">
+                        <div class="text-4xl font-black text-slate-300">${VOCAB_DATA.length - learnedCount}</div>
+                        <div class="text-[10px] text-slate-400 font-black uppercase tracking-widest">Learning</div>
+                    </div>
+                `;
+                document.getElementById('learned-list').innerHTML = VOCAB_DATA.map(w => `
+                    <div class="flex items-center justify-between p-5 bg-white border-2 border-slate-50 rounded-[2rem]">
+                        <div>
+                            <div class="font-cartoon text-lg text-slate-700">${w.word}</div>
+                            <div class="text-sm text-slate-400 font-bold">${w.definitions[0].zh}</div>
+                        </div>
+                        ${this.learnedData[w.id]?.learned ? 
+                            `<span class="bg-emerald-100 text-emerald-600 px-4 py-1 rounded-full font-black text-[10px]">DONE!</span>` : 
+                            `<span class="bg-slate-50 text-slate-300 px-4 py-1 rounded-full font-black text-[10px]">STUDYING</span>`}
+                    </div>
+                `).join('');
+            },
+
+            resetData() { if (confirm('要重置大冒險紀錄嗎？')) { localStorage.removeItem('unit13_vfinal_progress'); this.learnedData = {}; this.currentIndex = 0; this.updateProgress(); this.renderFlashcard(); this.renderLogs(); } }
+        };
+
+        const game = {
+            active: false, score: 0,
+            start(type) {
+                this.type = type; this.active = true; this.score = 0;
+                document.getElementById('game-selection').classList.add('hidden');
+                document.getElementById('game-playground').classList.remove('hidden');
+                this.nextQuestion();
+            },
+            quit() { this.active = false; document.getElementById('game-playground').classList.add('hidden'); document.getElementById('game-selection').classList.remove('hidden'); document.getElementById('modal-result').classList.add('hidden'); },
+            nextQuestion() {
+                const screen = document.getElementById('game-screen');
+                document.getElementById('game-stats').innerText = `Score: ${this.score}`;
+                if (this.type === 1) {
+                    const q = VOCAB_DATA[Math.floor(Math.random() * VOCAB_DATA.length)];
+                    const options = [q.definitions[0].zh];
+                    while (options.length < 4) {
+                        const r = VOCAB_DATA[Math.floor(Math.random() * VOCAB_DATA.length)].definitions[0].zh;
+                        if (!options.includes(r)) options.push(r);
+                    }
+                    options.sort(() => Math.random() - 0.5);
+                    screen.innerHTML = `<h2 class="font-cartoon text-5xl text-orange-500 mb-12">${q.word}</h2><div class="grid grid-cols-1 gap-4 w-full max-w-xs">${options.map(o => `<button onclick="game.checkA('${o}', '${q.definitions[0].zh}')" class="bubble-btn p-5 bg-white border-4 border-slate-100 rounded-[2rem] font-bold text-slate-600 hover:border-orange-400 bubble-shadow">${o}</button>`).join('')}</div>`;
+                } else if (this.type === 2) {
+                    // Direct Matching (Face Up)
+                    const sub = VOCAB_DATA.sort(() => Math.random() - 0.5).slice(0, 4);
+                    let cards = [];
+                    sub.forEach(w => { 
+                        cards.push({id: w.id, val: w.word, type: 'en'}); 
+                        cards.push({id: w.id, val: w.definitions[0].zh, type: 'zh'}); 
+                    });
+                    cards.sort(() => Math.random() - 0.5);
+                    screen.innerHTML = `<div class="grid grid-cols-2 gap-4 w-full max-w-sm">${cards.map((c, i) => `<button id="gc-${i}" onclick="game.matchC(${i}, ${c.id}, '${c.type}')" class="bubble-btn aspect-[4/3] bg-white border-4 border-slate-100 rounded-[2rem] flex items-center justify-center p-4 text-sm font-black text-indigo-500 bubble-shadow">${c.val}</button>`).join('')}</div>`;
+                    this.ms = { s: null, count: 0 };
+                } else if (this.type === 3) {
+                    const q = VOCAB_DATA[Math.floor(Math.random() * VOCAB_DATA.length)];
+                    screen.innerHTML = `<h2 class="font-cartoon text-3xl text-indigo-500 mb-6">${q.definitions[0].zh}</h2><input type="text" id="si" autofocus class="w-full max-w-xs p-6 text-center text-3xl font-cartoon border-b-8 border-slate-100 outline-none uppercase bg-transparent text-orange-500" placeholder="TYPE..."><button onclick="game.checkS('${q.word}')" class="bubble-btn mt-12 px-16 py-5 bg-orange-500 text-white rounded-[2rem] font-cartoon text-xl bubble-shadow uppercase tracking-widest">Submit!</button>`;
+                }
+            },
+            checkA(a, c) { if (a === c) { this.score += 10; if (this.score >= 100) this.showR(); else this.nextQuestion(); } else this.shake(); },
+            matchC(idx, id, type) {
+                const btn = document.getElementById(`gc-${idx}`);
+                if (btn.disabled) return;
+                btn.classList.add('bg-orange-500', 'text-white', 'border-orange-500');
+                if (!this.ms.s) { this.ms.s = { idx, id, type }; } else {
+                    if (this.ms.s.id === id && this.ms.s.type !== type) {
+                        this.score += 10; btn.disabled = true; document.getElementById(`gc-${this.ms.s.idx}`).disabled = true; this.ms.count += 2; this.ms.s = null;
+                        if (this.ms.count === 8) setTimeout(() => this.showR(), 500);
+                    } else {
+                        const prevIdx = this.ms.s.idx;
+                        setTimeout(() => {
+                            btn.classList.remove('bg-orange-500', 'text-white', 'border-orange-500');
+                            document.getElementById(`gc-${prevIdx}`).classList.remove('bg-orange-500', 'text-white', 'border-orange-500');
+                        }, 400);
+                        this.ms.s = null;
+                    }
+                }
+            },
+            checkS(c) {
+                if (document.getElementById('si').value.toLowerCase().trim() === c.toLowerCase()) { this.score += 20; if (this.score >= 100) this.showR(); else this.nextQuestion(); } 
+                else { this.shake(); if(navigator.vibrate) navigator.vibrate(200); }
+            },
+            shake() { document.getElementById('game-screen').classList.add('animate-shake'); setTimeout(() => document.getElementById('game-screen').classList.remove('animate-shake'), 200); },
+            showR() { document.getElementById('modal-result').classList.remove('hidden'); document.getElementById('modal-msg').innerText = `太棒了！你獲得了 ${this.score} 分！`; }
+        };
+
+        window.onload = () => app.init();
+    </script>
+</body>
+</html>
